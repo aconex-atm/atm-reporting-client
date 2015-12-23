@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="//d3js.org/d3.v3.min.js"></script>
+
+<style>
+    .chart rect {
+        fill: steelblue;
+    }
+
+    .chart rect:hover {
+        fill: brown;
+    }
+
+    .chart text {
+        font: 10px sans-serif;
+        text-anchor: end;
+    }
+
+    .axis text {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+</style>
+
+<body style="text-align: center">
+<h1>Number of toilet occupancy</h1>
+<svg class="chart">
+
+</svg>
+</body>
+
+<script>
+    var animationDuration = 500;
+    var margin = {top: 20, right: 30, bottom: 30, left: 40},
+            width = 400 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], .2);
+    var y = d3.scale.linear().range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+
+    var chart = d3.select(".chart")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom).append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var connection = new WebSocket('ws://localhost:8080/hello');
+
+    // When the connection is open, send some data to the server
+    connection.onopen = function () {
+        console.log('Connection open!');
+    };
+
+    // Log errors
+    connection.onerror = function (error) {
+        console.log('WebSocket Error ' + error);
+    };
+
+    // Log messages from the server
+    connection.onmessage = function (e) {
+        var data = JSON.parse(e.data);
+
+        x.domain(data.map(function (d) {
+            return d.key;
+        }));
+
+        y.domain([0, d3.max(data, function (d) {
+            return d.count;
+        })]);
+
+        chart.selectAll(".x.axis").remove();
+
+        chart.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .append("text")
+                .attr('x', width + 30)
+                .attr('y', 10)
+                .text("Time");
+
+
+        if (chart.selectAll(".y.axis")[0].length < 1) {
+            chart.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .text("Count");
+        } else {
+            chart.selectAll(".y.axis").transition().duration(animationDuration).call(yAxis)
+        }
+
+        var bars = chart.selectAll(".bar")
+                .data(data)
+                .attr("class", "bar");
+
+        bars.transition()
+                .duration(animationDuration)
+                .attr("y", function (d) {
+                    return y(d.count);
+                })
+                .attr("height", function (d) {
+                    return height - y(d.count);
+                });
+
+        bars.enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", function (d) {
+                    return x(d.key);
+                })
+                .attr("y", function (d) {
+                    return y(d.count);
+                })
+                .attr("height", function (d) {
+                    return height - y(d.count);
+                })
+                .attr("width", x.rangeBand());
+
+        bars.exit().remove();
+    };
+</script>

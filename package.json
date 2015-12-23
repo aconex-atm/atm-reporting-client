@@ -1,0 +1,26 @@
+{
+  "name": "atm-reporting-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "scripts": {
+    "startMock": "node mockServer/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aconex-atm/atm-reporting-client.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aconex-atm/atm-reporting-client/issues"
+  },
+  "homepage": "https://github.com/aconex-atm/atm-reporting-client#readme",
+  "devDependencies": {
+    "browser-sync": "^2.10.1",
+    "gulp": "^3.9.0"
+  },
+  "dependencies": {
+    "ws": "^0.8.1"
+  }
+}
