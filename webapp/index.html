@@ -57,7 +57,7 @@
             .attr("height", height + margin.top + margin.bottom).append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var connection = new WebSocket('ws://localhost:8080/hello');
+    var connection = new WebSocket('ws://52.62.29.150:8080/report/level/4/room/male/slot/1/usage');
 
     // When the connection is open, send some data to the server
     connection.onopen = function () {
